@@ -574,7 +574,7 @@ async function loadMenu() {
   localStorage.removeItem('admin_menu');
   if (API_URL && API_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
     try {
-      const r = await fetch(API_URL + '?action=menu');
+      const r = await fetch(API_URL + '/menu');
       const d = await r.json();
       if (d.ok && d.menu && d.menu.length) {
         MENU_DATA = d.menu.filter(m => m.status !== 'ปิด');
@@ -598,7 +598,7 @@ async function loadMenu() {
 async function loadPromos() {
   if (API_URL && API_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
     try {
-      const r = await fetch(API_URL + '?action=promos');
+      const r = await fetch(API_URL + '/promos');
       const d = await r.json();
       if (d.ok) { PROMOS = d.promos || []; renderPromos(); return; }
     } catch(e) {}
