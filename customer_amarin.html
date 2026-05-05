@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>อมรินทร์ โคตรเนื้อ โคตรกรอบ</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@700;900&family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans Thai',sans-serif;background:#FFF5F0;color:#1a0a0a;min-height:100vh;padding-bottom:100px}
+
+/* ── HEADER ── */
+header{background:linear-gradient(135deg,#8B0000,#5C0000);color:#FFD700;padding:14px 16px;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(139,0,0,.3)}
+.hdr-row{display:flex;justify-content:space-between;align-items:center}
+.shop-name{font-family:'Noto Serif Thai',serif;font-size:16px;font-weight:900;color:#FFD700}
+.shop-sub{font-size:10px;opacity:.8;color:#FFE4B5;margin-top:2px}
+.shop-zh{font-size:10px;opacity:.6;color:#FFD700;letter-spacing:2px}
+.hdr-addr{display:flex;align-items:center;gap:6px;margin-top:8px;background:rgba(255,215,0,.1);border-radius:8px;padding:6px 10px;cursor:pointer}
+.hdr-addr-text{font-size:11px;color:#FFE4B5;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hdr-addr-dist{font-size:11px;font-weight:700;color:#FFD700;flex-shrink:0}
+
+/* ── CATS ── */
+.cats{background:#FFF5F0;padding:10px 0;overflow-x:auto;white-space:nowrap;position:sticky;top:112px;z-index:50;border-bottom:1px solid rgba(139,0,0,.1)}
+.cats::-webkit-scrollbar{display:none}
+.cat-btn{display:inline-block;padding:7px 14px;margin-left:8px;background:white;border:1px solid rgba(139,0,0,.15);border-radius:999px;font-size:12px;font-weight:500;color:#8B0000;cursor:pointer}
+.cat-btn:first-child{margin-left:16px}.cat-btn:last-child{margin-right:16px}
+.cat-btn.active{background:#8B0000;color:#FFD700;border-color:#8B0000}
+
+/* ── PROMO BANNER ── */
+.promo-strip{padding:8px 16px;overflow-x:auto;white-space:nowrap;display:flex;gap:8px}
+.promo-strip::-webkit-scrollbar{display:none}
+.promo-pill{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#FFD700,#FFA500);color:#5C0000;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.promo-pill.selected{background:linear-gradient(135deg,#5C0000,#8B0000);color:#FFD700}
+
+/* ── MENU ── */
+.menu{padding:10px 16px}
+.menu-loading{text-align:center;padding:60px 20px;color:#8B0000}
+.loader{width:36px;height:36px;border:3px solid rgba(139,0,0,.2);border-top-color:#8B0000;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.menu-item{background:white;border-radius:16px;padding:12px;margin-bottom:10px;display:flex;gap:12px;cursor:pointer;box-shadow:0 2px 6px rgba(139,0,0,.06);border:1px solid rgba(139,0,0,.05);transition:transform .1s}
+.menu-item:active{transform:scale(.98)}
+.menu-item.sold-out{opacity:.5}
+.mi-img{width:76px;height:76px;border-radius:12px;background:linear-gradient(135deg,#FECACA,#FCA5A5);display:flex;align-items:center;justify-content:center;font-size:34px;flex-shrink:0;position:relative}
+.mi-tag{position:absolute;top:4px;right:4px;font-size:9px;padding:2px 5px;border-radius:4px}
+.mi-tag.sig{background:#FFD700;color:#5C0000;font-weight:700}
+.mi-tag.hot{background:rgba(0,0,0,.5);color:white}
+.mi-name{font-family:'Noto Serif Thai',serif;font-size:13px;font-weight:700;color:#5C0000;line-height:1.3;margin-bottom:2px}
+.mi-desc{font-size:11px;color:#8B0000;opacity:.85;line-height:1.4;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.mi-bottom{display:flex;justify-content:space-between;align-items:center}
+.mi-price{font-weight:700;color:#5C0000;font-size:14px}
+.mi-stock{font-size:10px;color:#DC2626;font-weight:600}
+
+/* ── CART BAR ── */
+.cart-bar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(to top,#FFF5F0 60%,transparent);padding:14px;z-index:90;transform:translateY(150%);transition:transform .3s}
+.cart-bar.show{transform:translateY(0)}
+.cart-btn{width:100%;padding:14px 20px;background:linear-gradient(135deg,#8B0000,#5C0000);color:#FFD700;border:none;border-radius:16px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-shadow:0 8px 24px rgba(139,0,0,.4)}
+.cart-count{background:rgba(255,215,0,.2);padding:3px 10px;border-radius:999px;font-size:11px}
+
+/* ── SCREENS (full-page overlays) ── */
+.screen{position:fixed;inset:0;background:#FFF5F0;z-index:150;display:none;flex-direction:column;overflow-y:auto}
+.screen.active{display:flex}
+.s-head{padding:16px 20px;border-bottom:1px solid rgba(139,0,0,.1);display:flex;align-items:center;gap:12px;flex-shrink:0;position:sticky;top:0;background:#FFF5F0;z-index:10}
+.back-btn{background:none;border:none;font-size:22px;cursor:pointer;color:#5C0000;padding:4px}
+.s-title{font-family:'Noto Serif Thai',serif;font-size:16px;font-weight:700;color:#5C0000}
+.s-body{flex:1;padding:16px;padding-bottom:120px}
+
+/* ── MODAL (bottom sheet) ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:200;display:none;align-items:flex-end}
+.modal-bg.active{display:flex}
+.modal{background:#FFF5F0;width:100%;max-height:90vh;border-radius:24px 24px 0 0;overflow:hidden;display:flex;flex-direction:column;animation:slideUp .3s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-head{padding:16px 20px;border-bottom:1px solid rgba(139,0,0,.1);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-family:'Noto Serif Thai',serif;font-size:15px;font-weight:700;color:#5C0000}
+.close-btn{background:none;border:none;font-size:22px;cursor:pointer;color:#5C0000;padding:4px}
+.modal-body{flex:1;overflow-y:auto;padding:18px}
+
+/* ── FORMS ── */
+.card{background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 6px rgba(139,0,0,.06)}
+.card-title{font-family:'Noto Serif Thai',serif;font-size:13px;font-weight:700;color:#5C0000;margin-bottom:10px}
+.inp-group{margin-bottom:10px}
+.inp-group:last-child{margin-bottom:0}
+.inp-label{display:block;font-size:11px;color:#8B0000;font-weight:600;margin-bottom:5px}
+input[type=text],input[type=tel],textarea{width:100%;padding:11px;border:2px solid rgba(139,0,0,.12);border-radius:11px;font-family:inherit;font-size:13px;color:#5C0000;background:#FFFBF5}
+input:focus,textarea:focus{outline:none;border-color:#8B0000;background:white}
+textarea{resize:vertical;min-height:55px}
+
+/* ── PAYMENT OPTIONS ── */
+.pay-opts{display:flex;flex-direction:column;gap:8px}
+.pay-opt{display:flex;align-items:center;gap:12px;padding:13px;background:#FFFBF5;border:2px solid rgba(139,0,0,.1);border-radius:12px;cursor:pointer}
+.pay-opt.active{background:#FEF3C7;border-color:#8B0000}
+.pay-icon{font-size:22px}
+.pay-name{font-weight:700;color:#5C0000;font-size:13px}
+.pay-desc{font-size:11px;color:#8B0000}
+
+/* ── ITEM MODAL ── */
+.item-img-lg{width:100%;height:150px;background:linear-gradient(135deg,#FECACA,#FCA5A5);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:70px;margin-bottom:14px}
+.opt-label{font-size:13px;font-weight:700;color:#5C0000;margin-bottom:7px}
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+.opt-btn{padding:9px;background:white;border:2px solid rgba(139,0,0,.1);border-radius:10px;font-size:12px;font-weight:500;color:#5C0000;cursor:pointer;text-align:center}
+.opt-btn.active{background:#8B0000;color:#FFD700;border-color:#8B0000}
+.opt-row{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:white;border:2px solid rgba(139,0,0,.1);border-radius:10px;margin-bottom:7px;cursor:pointer;font-size:12px;color:#5C0000}
+.opt-row.active{background:#FEF3C7;border-color:#8B0000}
+.qty-row{display:flex;gap:10px;align-items:center;margin-top:14px}
+.qty-box{display:flex;align-items:center;background:white;border:2px solid rgba(139,0,0,.1);border-radius:10px}
+.qty-btn{width:34px;height:34px;background:none;border:none;cursor:pointer;color:#5C0000;font-size:17px;font-weight:bold}
+.qty-num{width:30px;text-align:center;font-weight:700;color:#5C0000}
+
+/* ── CART ITEMS ── */
+.cart-item{background:white;border-radius:12px;padding:11px;margin-bottom:8px;display:flex;gap:11px;align-items:center}
+.ci-img{width:52px;height:52px;border-radius:9px;background:linear-gradient(135deg,#FECACA,#FCA5A5);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.ci-name{font-family:'Noto Serif Thai',serif;font-weight:700;font-size:12px;color:#5C0000}
+.ci-opts{font-size:10px;color:#8B0000;margin:2px 0}
+.ci-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:3px}
+.ci-qty{display:flex;align-items:center;background:#FEF3C7;border-radius:7px}
+.ci-qty button{width:24px;height:24px;background:none;border:none;cursor:pointer;color:#5C0000;font-size:14px}
+.ci-qty span{padding:0 5px;font-weight:700;color:#5C0000;font-size:12px}
+.ci-price{font-weight:700;color:#5C0000;font-size:13px}
+.remove-btn{background:none;border:none;cursor:pointer;color:#8B0000;font-size:18px;padding:3px}
+
+/* ── SUMMARY ── */
+.sum-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px;color:#8B0000}
+.sum-row.total{border-top:1px solid rgba(139,0,0,.1);padding-top:9px;margin-top:9px;margin-bottom:0;font-weight:700;color:#5C0000;font-size:15px}
+.sum-row.disc{color:#16A34A}
+.strike{text-decoration:line-through;opacity:.5}
+
+/* ── BUTTONS ── */
+.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,#8B0000,#5C0000);color:#FFD700;border:none;border-radius:14px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(139,0,0,.4)}
+.btn-primary:disabled{background:#9CA3AF;box-shadow:none}
+.btn-primary:active:not(:disabled){transform:scale(.98)}
+.submit-bar{position:sticky;bottom:0;background:linear-gradient(to top,#FFF5F0 80%,transparent);padding:14px;margin:-16px -16px 0;flex-shrink:0}
+
+/* ── MAP LINK BTN ── */
+.map-btn{display:flex;align-items:center;gap:8px;padding:11px 14px;background:white;border:2px dashed rgba(139,0,0,.2);border-radius:12px;cursor:pointer;width:100%;font-family:inherit;font-size:12px;color:#8B0000;text-align:left}
+.map-btn.selected{background:#ECFDF5;border-color:#10B981;color:#065F46}
+
+/* ── ADDRESS PICKER ── */
+.addr-card{background:white;border-radius:12px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;cursor:pointer;border:2px solid rgba(139,0,0,.08)}
+.addr-card.active{border-color:#8B0000;background:#FFFBF5}
+.addr-card-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.addr-card-name{font-weight:700;font-size:13px;color:#5C0000}
+.addr-card-text{font-size:11px;color:#8B0000;margin-top:2px;line-height:1.4}
+.addr-card-dist{font-size:11px;font-weight:700;margin-top:3px}
+.addr-card-dist.ok{color:#16A34A}
+.addr-card-dist.far{color:#DC2626}
+
+/* ── OUT OF RANGE ── */
+.oor-screen{position:fixed;inset:0;background:#FFF5F0;z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center}
+.oor-screen.active{display:flex}
+.oor-emoji{font-size:60px;margin-bottom:16px}
+.oor-title{font-family:'Noto Serif Thai',serif;font-size:22px;font-weight:700;color:#5C0000;margin-bottom:8px}
+.oor-msg{font-size:13px;color:#8B0000;margin-bottom:28px;line-height:1.6;max-width:300px}
+.oor-btns{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+.oor-btn{padding:14px;border-radius:14px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.oor-btn.grab{background:#00B14F;color:white}
+.oor-btn.lm{background:#00B900;color:white}
+.oor-btn.back{background:white;color:#5C0000;border:2px solid rgba(139,0,0,.2)}
+
+/* ── SETUP SCREEN ── */
+.setup-hero{background:linear-gradient(135deg,#8B0000,#5C0000);padding:32px 20px 24px;text-align:center;color:#FFD700;flex-shrink:0}
+.setup-emoji{font-size:56px;margin-bottom:12px}
+.setup-title{font-family:'Noto Serif Thai',serif;font-size:20px;font-weight:900}
+.setup-sub{font-size:12px;opacity:.8;color:#FFE4B5;margin-top:4px}
+
+/* ── SUCCESS ── */
+.success-screen{position:fixed;inset:0;background:#FFF5F0;z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.success-screen.active{display:flex}
+
+/* ── TOAST ── */
+.toast{position:fixed;top:76px;left:50%;transform:translateX(-50%);background:#5C0000;color:#FFD700;padding:11px 22px;border-radius:999px;font-size:12px;font-weight:500;z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap}
+.toast.show{opacity:1}
+.toast.err{background:#DC2626;color:white}
+.toast.ok{background:#059669;color:white}
+
+/* ── LINE LOGIN SPLASH ── */
+.splash{position:fixed;inset:0;background:linear-gradient(135deg,#8B0000,#5C0000);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center}
+.splash-logo{font-size:72px;margin-bottom:16px}
+.splash-title{font-family:'Noto Serif Thai',serif;font-size:24px;font-weight:900;color:#FFD700;margin-bottom:4px}
+.splash-sub{font-size:13px;color:#FFE4B5;opacity:.85;margin-bottom:36px}
+.splash-zh{font-size:12px;color:#FFD700;opacity:.5;letter-spacing:3px;margin-bottom:40px}
+.line-btn{display:flex;align-items:center;gap:10px;background:#06C755;color:white;padding:16px 32px;border-radius:999px;border:none;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.line-icon{font-size:22px}
+
+.empty{text-align:center;padding:48px 20px;color:#8B0000}
+.empty-emoji{font-size:44px;opacity:.4;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<!-- ── SPLASH / LINE LOGIN ── -->
+<div class="splash" id="splash">
+  <div class="splash-logo">🥩</div>
+  <div class="splash-title">อมรินทร์ โคตรเนื้อ โคตรกรอบ</div>
+  <div class="splash-sub">เนื้อคุณภาพ ส่งตรงถึงบ้าน</div>
+  <div class="splash-zh">财源广进 大吉大利</div>
+  <button class="line-btn" onclick="loginLine()">
+    <span class="line-icon">💬</span>
+    เข้าสู่ระบบด้วย LINE
+  </button>
+</div>
+
+<!-- ── SETUP SCREEN (กรอกข้อมูลครั้งแรก) ── -->
+<div class="screen" id="setup-screen">
+  <div class="setup-hero">
+    <div class="setup-emoji">👤</div>
+    <div class="setup-title">ยืนดีมาสั่งเนื้อ!</div>
+    <div class="setup-sub">กรอกข้อมูลสั้นๆ ครั้งเดียว</div>
+  </div>
+  <div class="s-body">
+    <div class="card">
+      <div class="card-title">ข้อมูลส่วนตัว</div>
+      <div class="inp-group">
+        <label class="inp-label">ชื่อ-นามสกุล *</label>
+        <input type="text" id="setup-name" placeholder="เช่น สมชาย ใจดี">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">เบอร์โทรศัพท์ *</label>
+        <input type="tel" id="setup-phone" placeholder="08X-XXX-XXXX" maxlength="10">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ที่อยู่จัดส่งหลัก</div>
+      <div class="inp-group">
+        <label class="inp-label">บ้านเลขที่ / ที่อยู่ *</label>
+        <textarea id="setup-addr" placeholder="บ้านเลขที่ ซอย ถนน ตำบล อำเภอ จังหวัด" rows="2"></textarea>
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">ลิงก์ Google Maps (สำหรับไรเดอร์)</label>
+        <input type="text" id="setup-maplink"
+          placeholder="วางลิงก์ Google Maps บ้านคุณที่นี่..."
+          style="font-size:14px;padding:12px;margin-bottom:0;width:100%"
+          autocomplete="off" autocorrect="off" spellcheck="false">
+        <div style="margin-top:6px;font-size:11px;color:#8B0000;opacity:.7;line-height:1.5">
+          ใช้สำหรับให้ไรเดอร์นำทางมาส่ง (ใส่หรือไม่ใส่ก็ได้)
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="saveSetup()">บันทึกและเริ่มสั่งอาหาร 🍖</button>
+    <button onclick="clearAndReload()" style="background:none;border:none;color:#8B0000;font-size:11px;text-decoration:underline;cursor:pointer;margin-top:8px;display:block;width:100%;text-align:center;padding:4px">รีเซ็ตข้อมูลทั้งหมด</button>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app" style="display:none">
+
+  <!-- Header -->
+  <header>
+    <div class="hdr-row">
+      <div>
+        <div class="shop-name">🥩 อมรินทร์ โคตรเนื้อ โคตรกรอบ</div>
+        <div class="shop-sub">เนื้อคุณภาพ • ส่งตรงจากร้าน</div>
+        <div class="shop-zh">财源广进 大吉大利</div>
+      </div>
+      <div id="user-avatar" style="width:36px;height:36px;border-radius:50%;background:rgba(255,215,0,.2);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer" onclick="openAddresses()">👤</div>
+    </div>
+    <div class="hdr-addr" onclick="openAddresses()">
+      <span>📍</span>
+      <span class="hdr-addr-text" id="hdr-addr-text">กำลังโหลด...</span>
+      <span class="hdr-addr-dist" id="hdr-addr-dist"></span>
+      <span style="color:#FFD700;opacity:.6;font-size:12px">›</span>
+    </div>
+  </header>
+
+  <!-- Promo strip -->
+  <div class="promo-strip" id="promo-strip" style="display:none"></div>
+
+  <!-- Categories -->
+  <div class="cats" id="cats"></div>
+
+  <!-- Menu -->
+  <div class="menu" id="menu">
+    <div class="menu-loading"><div class="loader"></div>กำลังโหลดเมนู...</div>
+  </div>
+
+  <!-- Cart bar -->
+  <div class="cart-bar" id="cart-bar">
+    <button class="cart-btn" onclick="openCart()">
+      <span><span class="cart-count" id="cart-count">0</span> ดูตะกร้า</span>
+      <span id="cart-total-bar">฿0</span>
+    </button>
+  </div>
+</div>
+
+<!-- ── ADDRESS PICKER SCREEN ── -->
+<div class="screen" id="addr-screen">
+  <div class="s-head">
+    <button class="back-btn" onclick="closeScreen('addr-screen')">←</button>
+    <div class="s-title">ที่อยู่ของฉัน</div>
+    <button style="margin-left:auto;background:#8B0000;color:#FFD700;border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer" onclick="openAddNewAddr()">+ เพิ่ม</button>
+  </div>
+  <div class="s-body" id="addr-list"></div>
+</div>
+
+<!-- ── ADD ADDRESS SCREEN ── -->
+<div class="screen" id="new-addr-screen">
+  <div class="s-head">
+    <button class="back-btn" onclick="closeScreen('new-addr-screen')">←</button>
+    <div class="s-title">เพิ่มที่อยู่ใหม่</div>
+  </div>
+  <div class="s-body">
+    <div class="card">
+      <div class="inp-group">
+        <label class="inp-label">ชื่อที่อยู่ (เช่น บ้าน, ที่ทำงาน)</label>
+        <input type="text" id="new-addr-label" placeholder="บ้าน">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">บ้านเลขที่ / ที่อยู่ *</label>
+        <textarea id="new-addr-text" placeholder="บ้านเลขที่ ซอย ถนน" rows="2"></textarea>
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">รายละเอียดเพิ่มเติม</label>
+        <input type="text" id="new-addr-note" placeholder="เช่น บ้านสีฟ้า, หน้ามีต้นมะม่วง">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">ลิงก์ Google Maps (สำหรับไรเดอร์)</label>
+        <input type="text" id="new-maplink"
+          placeholder="วางลิงก์ Google Maps บ้านคุณที่นี่..."
+          style="font-size:14px;padding:12px;margin-bottom:0;width:100%"
+          autocomplete="off" autocorrect="off" spellcheck="false">
+        <div style="margin-top:6px;font-size:11px;color:#8B0000;opacity:.7;line-height:1.5">
+          ใช้สำหรับให้ไรเดอร์นำทางมาส่ง (ใส่หรือไม่ใส่ก็ได้)
+        </div>
+      </div>
+    </div>
+    <div class="submit-bar">
+      <button class="btn-primary" id="save-addr-btn" onclick="saveNewAddr()">บันทึกที่อยู่</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CART + CHECKOUT SCREEN ── -->
+<div class="screen" id="cart-screen">
+  <div class="s-head">
+    <button class="back-btn" onclick="closeScreen('cart-screen')">←</button>
+    <div class="s-title">ตะกร้า & ชำระเงิน</div>
+  </div>
+  <div class="s-body" id="cart-body"></div>
+</div>
+
+<!-- ── ITEM DETAIL MODAL ── -->
+<div class="modal-bg" id="item-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div></div>
+      <div class="modal-title">รายละเอียดเมนู</div>
+      <button class="close-btn" onclick="closeModal('item-modal')">×</button>
+    </div>
+    <div class="modal-body" id="item-modal-body"></div>
+  </div>
+</div>
+
+<!-- ── OUT OF RANGE ── -->
+<div class="oor-screen" id="oor-screen">
+  <div class="oor-emoji">😔</div>
+  <div class="oor-title">นอกพื้นที่จัดส่ง</div>
+  <div class="oor-msg">ที่อยู่ของคุณห่างจากร้านเกิน 3 กิโลเมตร ลองสั่งผ่าน Grab หรือ LINE MAN แทนได้นะครับ</div>
+  <div class="oor-btns">
+    <button class="oor-btn grab" onclick="openLink(REMOTE_CFG.grabUrl)">🚗 สั่งผ่าน Grab</button>
+    <button class="oor-btn lm" onclick="openLink(REMOTE_CFG.linemanUrl)">🛵 สั่งผ่าน LINE MAN</button>
+    <button class="oor-btn back" onclick="closeScreen('oor-screen')">← เลือกที่อยู่อื่น</button>
+  </div>
+</div>
+
+<!-- ── SUCCESS ── -->
+<div class="success-screen" id="success-screen">
+  <div style="font-size:72px;margin-bottom:14px">🎉</div>
+  <div style="font-family:'Noto Serif Thai',serif;font-size:22px;font-weight:700;color:#5C0000;margin-bottom:8px">ส่งคำสั่งซื้อแล้ว!</div>
+  <div style="font-size:13px;color:#8B0000;margin-bottom:20px;max-width:280px;text-align:center;line-height:1.6">ทางร้านจะยืนยันทาง LINE ภายใน 5-10 นาที</div>
+  <div style="background:white;border-radius:12px;padding:14px 24px;font-family:'Noto Serif Thai',serif;font-size:17px;font-weight:700;color:#5C0000;margin-bottom:18px;border:2px dashed #8B0000" id="success-orderid"></div>
+  <div style="background:#FEF3C7;border-radius:12px;padding:14px;font-size:12px;color:#5C0000;text-align:left;max-width:300px;line-height:1.7;margin-bottom:22px">
+    <b>ขั้นถัดไป:</b><br>
+    1. รอร้านยืนยันทาง LINE<br>
+    2. โอนตามยอด + ส่งสลิป (ถ้าเลือกโอน)<br>
+    3. รอไรเดอร์มาส่ง 30-45 นาที 🛵
+  </div>
+  <button class="btn-primary" style="max-width:200px" onclick="resetOrder()">สั่งอีกครั้ง</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// CONFIG — แก้ตรงนี้
+// ════════════════════════════════════════════════════════
+const LIFF_ID = 'YOUR_LIFF_ID_HERE';          // ⚠️ ใส่ LIFF ID จาก LINE Developers
+const API_URL = 'https://amarin-delivery.onrender.com';  // ⚠️ เปลี่ยนเป็น URL server จริงตอน deploy
+
+// ════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════
+let USER = null;        // { lineUserId, name, picUrl }
+let PROFILE = null;     // { name, phone, addresses: [{label,address,note,lat,lng}], activeAddrIdx }
+let REMOTE_CFG = { grabUrl:'', linemanUrl:'', shopLat:17.4138, shopLng:102.8236, radiusKm:3 };
+let MENU_DATA = [];
+let CATS = ['ทั้งหมด'];
+let PROMOS = [];
+let activeCat = 'ทั้งหมด';
+let selectedPromo = null;
+let cart = [];
+let checkoutAddrIdx = 0;
+let curItem = null;
+let curOpts = { spicy:1, extras:[], qty:1, note:'' };
+let payMethod = 'cod';
+
+const SPICY = ['ไม่เผ็ด','เผ็ดน้อย','เผ็ดปกติ','เผ็ดมาก'];
+const EXTRAS = [
+  { id:'meat', name:'เนื้อเพิ่ม', price:30 },
+  { id:'rice', name:'ข้าวเพิ่ม', price:10 },
+  { id:'special', name:'พิเศษ', price:20 },
+];
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+async function init() {
+  // โหลด config จากหลังบ้าน
+  try {
+    const r = await fetch(API_URL + '/config');
+    REMOTE_CFG = { ...REMOTE_CFG, ...(await r.json()) };
+  } catch(e) {}
+
+  // LINE LIFF
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) {
+      document.getElementById('splash').style.display = 'flex';
+      return;
+    }
+    const profile = await liff.getProfile();
+    USER = { lineUserId: profile.userId, name: profile.displayName, picUrl: profile.pictureUrl };
+    if (profile.pictureUrl) {
+      document.getElementById('user-avatar').innerHTML = `<img src="${profile.pictureUrl}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`;
+    }
+  } catch(e) {
+    // fallback: ใช้โหมด demo
+    USER = { lineUserId: 'DEMO_USER', name: 'Demo User', picUrl: '' };
+  }
+
+  // โหลด profile จาก localStorage
+  const saved = localStorage.getItem('amarin_profile_' + USER.lineUserId);
+  if (saved) {
+    PROFILE = JSON.parse(saved);
+    showApp();
+  } else {
+    // ครั้งแรก — ไปหน้า setup
+    document.getElementById('splash').style.display = 'none';
+    openScreen('setup-screen');
+    document.getElementById('setup-name').value = USER.name || '';
+  }
+}
+
+function loginLine() {
+  if (liff.isInClient()) {
+    liff.login();
+  } else {
+    liff.login({ redirectUri: window.location.href });
+  }
+}
+
+async function showApp() {
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('setup-screen').classList.remove('active');
+  document.getElementById('app').style.display = 'block';
+  updateAddrBar();
+  await Promise.all([loadMenu(), loadPromos()]);
+}
+
+// ════════════════════════════════════════════════════════
+// SETUP — กรอกครั้งแรก
+// ════════════════════════════════════════════════════════
+
+
+// ════════════════════════════════════════════════════════
+// SETUP SAVE
+// ════════════════════════════════════════════════════════
+function saveSetup() {
+  const name = (document.getElementById('setup-name').value || '').trim();
+  const phone = (document.getElementById('setup-phone').value || '').replace(/\D/g,'');
+  const addr = (document.getElementById('setup-addr').value || '').trim();
+  const mapsLink = (document.getElementById('setup-maplink').value || '').trim();
+
+  if (!name) { toast('กรุณาใส่ชื่อ','err'); return; }
+  if (phone.length !== 10) { toast('เบอร์โทรต้อง 10 หลัก','err'); return; }
+  if (!addr) { toast('กรุณาใส่ที่อยู่','err'); return; }
+
+  PROFILE = {
+    name, phone,
+    addresses: [{ label:'บ้าน', address: addr, note:'', mapsLink, lat: null, lng: null }],
+    activeAddrIdx: 0,
+  };
+  saveProfile();
+  showApp();
+  toast('บันทึกข้อมูลเรียบร้อย 🎉','ok');
+}
+
+function saveProfile() {
+  localStorage.setItem('amarin_profile_' + USER.lineUserId, JSON.stringify(PROFILE));
+}
+
+// ════════════════════════════════════════════════════════
+// ADDRESS MANAGEMENT
+// ════════════════════════════════════════════════════════
+function activeAddr() {
+  if (!PROFILE || !PROFILE.addresses.length) return null;
+  return PROFILE.addresses[PROFILE.activeAddrIdx] || PROFILE.addresses[0];
+}
+
+function updateAddrBar() {
+  const a = activeAddr();
+  if (!a) return;
+  document.getElementById('hdr-addr-text').textContent = a.address;
+  document.getElementById('hdr-addr-dist').textContent = '';
+}
+
+function openAddresses() {
+  const list = document.getElementById('addr-list');
+  list.innerHTML = '';
+  PROFILE.addresses.forEach((a, i) => {
+    list.innerHTML += `
+      <div class="addr-card ${i === PROFILE.activeAddrIdx ? 'active' : ''}" onclick="selectAddr(${i})">
+        <div class="addr-card-icon">${i===0?'🏠':'📍'}</div>
+        <div style="flex:1;min-width:0">
+          <div class="addr-card-name">${a.label || 'ที่อยู่ '+(i+1)}</div>
+          <div class="addr-card-text">${a.address}${a.note?' • '+a.note:''}</div>
+          ${a.mapsLink?'<div style="font-size:10px;color:#16A34A;margin-top:2px">📍 มีลิงก์ Maps</div>':''}
+        </div>
+        ${i===PROFILE.activeAddrIdx?'<span style="color:#8B0000;font-size:18px">✓</span>':''}
+      </div>`;
+  });
+  openScreen('addr-screen');
+}
+
+function selectAddr(i) {
+  PROFILE.activeAddrIdx = i;
+  saveProfile();
+  updateAddrBar();
+  closeScreen('addr-screen');
+}
+
+
+
+function openAddNewAddr() {
+  document.getElementById('new-addr-label').value = '';
+  document.getElementById('new-addr-text').value = '';
+  document.getElementById('new-addr-note').value = '';
+  const ml = document.getElementById('new-maplink');
+  if (ml) { ml.value = ''; ml.style.borderColor = ''; }
+  openScreen('new-addr-screen');
+}
+
+
+
+function saveNewAddr() {
+  const text = (document.getElementById('new-addr-text').value || '').trim();
+  if (!text) return toast('กรุณาใส่ที่อยู่','err');
+  const mapsLink = (document.getElementById('new-maplink')?.value || '').trim();
+  const label = (document.getElementById('new-addr-label').value || '').trim() || 'ที่อยู่ใหม่';
+  const note = (document.getElementById('new-addr-note').value || '').trim();
+  PROFILE.addresses.push({ label, address: text, note, mapsLink, lat: null, lng: null });
+  PROFILE.activeAddrIdx = PROFILE.addresses.length - 1;
+  saveProfile();
+  updateAddrBar();
+  closeScreen('new-addr-screen');
+  openAddresses();
+  toast('เพิ่มที่อยู่แล้ว','ok');
+}
+
+// ════════════════════════════════════════════════════════
+// MENU
+// ════════════════════════════════════════════════════════
+async function loadMenu() {
+  if (API_URL && API_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
+    try {
+      const r = await fetch(API_URL + '?action=menu');
+      const d = await r.json();
+      if (d.ok && d.menu && d.menu.length) {
+        MENU_DATA = d.menu.filter(m => m.status !== 'ปิด');
+        CATS = ['ทั้งหมด', ...new Set(MENU_DATA.map(m => m.cat))];
+        renderCats(); renderMenu(); return;
+      }
+    } catch(e) {}
+  }
+  // fallback default
+  MENU_DATA = [
+    {id:1, name:'เนื้อตุ๋นโคตรนุ่ม',         cat:'เนื้อ', price:159, img:'🥩', desc:'เนื้อตุ๋นเปื่อย หอมเครื่องเทศ',    stock:999, signature:true},
+    {id:2, name:'เนื้อทอดกระเทียมโคตรกรอบ', cat:'เนื้อ', price:139, img:'🍖', desc:'ทอดกรอบ กระเทียมหอม',              stock:999, signature:true},
+    {id:3, name:'สเต็กเนื้อโคตรกรอบ',        cat:'เนื้อ', price:199, img:'🥩', desc:'สันใน ย่างกรอบ เสิร์ฟกับสลัด',    stock:999, signature:true},
+    {id:4, name:'หมูทอดกระเทียม',            cat:'หมู',  price:89,  img:'🐷', desc:'หมูทอดกรอบ กระเทียมหอม',          stock:999, signature:false},
+    {id:5, name:'หมูย่างซีอิ๊ว',             cat:'หมู',  price:99,  img:'🐷', desc:'หมูย่างหวานหอม',                   stock:999, signature:false},
+  ];
+  CATS = ['ทั้งหมด', 'เนื้อ', 'หมู'];
+  renderCats(); renderMenu();
+}
+
+async function loadPromos() {
+  if (API_URL && API_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
+    try {
+      const r = await fetch(API_URL + '?action=promos');
+      const d = await r.json();
+      if (d.ok) { PROMOS = d.promos || []; renderPromos(); return; }
+    } catch(e) {}
+  }
+  PROMOS = [];
+  renderPromos();
+}
+
+function resolveImg(img) {
+  // ถ้า img เป็น key menu_img_XX → โหลดจาก localStorage
+  if (img && img.startsWith('menu_img_')) {
+    const imgs = JSON.parse(localStorage.getItem('menu_images') || '{}');
+    const id = img.replace('menu_img_', '');
+    return imgs[id] || '🍽️';
+  }
+  return img || '🍽️';
+}
+
+function renderCats() {
+  document.getElementById('cats').innerHTML = CATS.map(c =>
+    `<button class="cat-btn${c===activeCat?' active':''}" onclick="selectCat('${c}')">${c}</button>`).join('');
+}
+function selectCat(c) { activeCat=c; renderCats(); renderMenu(); }
+
+function renderPromos() {
+  if (!PROMOS.length) { document.getElementById('promo-strip').style.display='none'; return; }
+  document.getElementById('promo-strip').style.display='flex';
+  document.getElementById('promo-strip').innerHTML =
+    `<div class="promo-pill${!selectedPromo?' selected':''}" onclick="selectPromo(null)">ไม่ใช้โปร</div>` +
+    PROMOS.map(p => `<div class="promo-pill${selectedPromo?.id===p.id?' selected':''}" onclick="selectPromo('${p.id}')">${p.name}</div>`).join('');
+}
+function selectPromo(id) {
+  selectedPromo = id ? PROMOS.find(p=>p.id===id) : null;
+  renderPromos();
+  toast(selectedPromo ? `ใช้โปร: ${selectedPromo.name}` : 'ยกเลิกโปร','ok');
+}
+
+function renderMenu() {
+  const items = activeCat==='ทั้งหมด' ? MENU_DATA : MENU_DATA.filter(m=>m.cat===activeCat);
+  if (!items.length) { document.getElementById('menu').innerHTML = '<div class="empty"><div class="empty-emoji">🍽️</div><p>ไม่มีเมนู</p></div>'; return; }
+  document.getElementById('menu').innerHTML = items.map(m => `
+    <div class="menu-item${m.stock===0?' sold-out':''}" onclick="${m.stock>0?`openItem(${m.id})`:`toast('หมดแล้ว','err')`}">
+      <div class="mi-img">${resolveImg(m.img).startsWith('data:') ? `<img src='${resolveImg(m.img)}' style='width:100%;height:100%;object-fit:cover;border-radius:12px'>` : resolveImg(m.img)}${m.signature?'<span class="mi-tag sig">⭐ เด็ด</span>':m.hot?'<span class="mi-tag hot">🔥</span>':''}</div>
+      <div style="flex:1;min-width:0">
+        <div class="mi-name">${m.name}</div>
+        <div class="mi-desc">${m.desc||''}</div>
+        <div class="mi-bottom">
+          <div class="mi-price">฿${m.price}</div>
+          ${m.stock===0?'<div class="mi-stock">หมดแล้ว</div>':m.stock<6?`<div class="mi-stock" style="color:#EA580C">เหลือ ${m.stock}</div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// ITEM MODAL
+// ════════════════════════════════════════════════════════
+function openItem(id) {
+  curItem = MENU_DATA.find(m=>m.id===id);
+  if (!curItem) return;
+  curOpts = { spicy:1, extras:[], qty:1, note:'' };
+  renderItemModal();
+  document.getElementById('item-modal').classList.add('active');
+}
+function renderItemModal() {
+  const total = calcPrice();
+  document.getElementById('item-modal-body').innerHTML = `
+    <div class="item-img-lg">${resolveImg(curItem.img).startsWith('data:') ? `<img src='${resolveImg(curItem.img)}' style='width:100%;height:100%;object-fit:cover;border-radius:14px'>` : resolveImg(curItem.img)}</div>
+    <div style="font-family:'Noto Serif Thai',serif;font-size:17px;font-weight:700;color:#5C0000;margin-bottom:4px">${curItem.name}</div>
+    <div style="font-size:12px;color:#8B0000;margin-bottom:18px">${curItem.desc||''}</div>
+    <div class="opt-label">ระดับความเผ็ด</div>
+    <div class="opt-grid">${SPICY.map((s,i)=>`<button class="opt-btn${curOpts.spicy===i?' active':''}" onclick="setSpicy(${i})">${s}</button>`).join('')}</div>
+    <div class="opt-label">เพิ่มเติม</div>
+    ${EXTRAS.map(x=>`<div class="opt-row${curOpts.extras.includes(x.id)?' active':''}" onclick="toggleExtra('${x.id}')"><span>${x.name}</span><span style="color:#8B0000">+฿${x.price}</span></div>`).join('')}
+    <div class="opt-label" style="margin-top:14px">หมายเหตุ</div>
+    <textarea placeholder="เช่น ไม่ใส่ผัก" style="margin-bottom:0" onchange="curOpts.note=this.value">${curOpts.note}</textarea>
+    <div class="qty-row">
+      <div class="qty-box">
+        <button class="qty-btn" onclick="setQty(-1)">−</button>
+        <span class="qty-num">${curOpts.qty}</span>
+        <button class="qty-btn" onclick="setQty(1)">+</button>
+      </div>
+      <button class="btn-primary" style="flex:1" onclick="addToCart()">เพิ่มลงตะกร้า ฿${total*curOpts.qty}</button>
+    </div>`;
+}
+function setSpicy(i) { curOpts.spicy=i; renderItemModal(); }
+function toggleExtra(id) { curOpts.extras.includes(id)?curOpts.extras=curOpts.extras.filter(e=>e!==id):curOpts.extras.push(id); renderItemModal(); }
+function setQty(d) { curOpts.qty=Math.max(1,curOpts.qty+d); renderItemModal(); }
+function calcPrice() {
+  return curItem.price + curOpts.extras.reduce((s,eid)=>s+(EXTRAS.find(x=>x.id===eid)?.price||0),0);
+}
+function addToCart() {
+  cart.push({ id:Date.now(), menuId:curItem.id, name:curItem.name, img:curItem.img, unitPrice:calcPrice(), spicy:SPICY[curOpts.spicy], extras:curOpts.extras.map(eid=>EXTRAS.find(x=>x.id===eid)?.name).filter(Boolean), note:curOpts.note, qty:curOpts.qty });
+  closeModal('item-modal');
+  updateCartBar();
+  toast('เพิ่มลงตะกร้า 🛒','ok');
+}
+
+// ════════════════════════════════════════════════════════
+// CART
+// ════════════════════════════════════════════════════════
+function updateCartBar() {
+  const cnt = cart.reduce((s,i)=>s+i.qty,0);
+  const total = cart.reduce((s,i)=>s+i.unitPrice*i.qty,0);
+  const bar = document.getElementById('cart-bar');
+  if (cnt>0) { bar.classList.add('show'); document.getElementById('cart-count').textContent=cnt; document.getElementById('cart-total-bar').textContent='฿'+total; }
+  else bar.classList.remove('show');
+}
+
+function calcTotals() {
+  const sub = cart.reduce((s,i)=>s+i.unitPrice*i.qty,0);
+  const fee = 15;
+  let promoDisc = 0;
+  if (selectedPromo) {
+    if (selectedPromo.type==='FREE_DELIVERY') promoDisc = fee;
+    else if (selectedPromo.type==='DISCOUNT_FIXED') promoDisc = selectedPromo.value;
+    else if (selectedPromo.type==='DISCOUNT_PERCENT') promoDisc = Math.round(sub*selectedPromo.value/100);
+  }
+  const total = Math.max(0, sub+fee-promoDisc);
+  return { sub, fee, promoDisc, total };
+}
+
+function selectCheckoutAddr(i) {
+  checkoutAddrIdx = i;
+  renderCart();
+}
+
+function openCart() {
+  checkoutAddrIdx = PROFILE?.activeAddrIdx || 0;
+  renderCart();
+  openScreen('cart-screen');
+}
+
+function renderCart() {
+  const t = calcTotals();
+  const a = activeAddr();
+  const el = document.getElementById('cart-body');
+
+  if (!cart.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-emoji">🛒</div><p>ตะกร้าว่างเปล่า</p></div>';
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">รายการอาหาร</div>
+      ${cart.map(c=>`
+        <div class="cart-item">
+          <div class="ci-img">${resolveImg(c.img).startsWith('data:') ? `<img src='${resolveImg(c.img)}' style='width:52px;height:52px;object-fit:cover;border-radius:9px'>` : resolveImg(c.img)}</div>
+          <div style="flex:1;min-width:0">
+            <div class="ci-name">${c.name}</div>
+            <div class="ci-opts">${c.spicy}${c.extras.length?' • +'+c.extras.join(','):''}</div>
+            ${c.note?`<div style="font-size:10px;color:#8B0000;font-style:italic">"${c.note}"</div>`:''}
+            <div class="ci-bottom">
+              <div class="ci-qty">
+                <button onclick="updQty(${c.id},-1)">−</button>
+                <span>${c.qty}</span>
+                <button onclick="updQty(${c.id},1)">+</button>
+              </div>
+              <div class="ci-price">฿${c.unitPrice*c.qty}</div>
+            </div>
+          </div>
+          <button class="remove-btn" onclick="removeItem(${c.id})">×</button>
+        </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-title">ข้อมูลผู้สั่ง</div>
+      <div class="inp-group">
+        <label class="inp-label">ชื่อ-นามสกุล *</label>
+        <input type="text" id="co-name" value="${PROFILE?.name||''}" placeholder="ชื่อ-นามสกุล">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">เบอร์โทรศัพท์ *</label>
+        <input type="tel" id="co-phone" value="${PROFILE?.phone||''}" placeholder="08X-XXX-XXXX" maxlength="10">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ที่อยู่จัดส่ง</div>
+      ${PROFILE.addresses.map((addr, i) => `
+        <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:10px;border:2px solid ${i===checkoutAddrIdx?'#8B0000':'rgba(139,0,0,.1)'};background:${i===checkoutAddrIdx?'#FFFBF5':'white'};cursor:pointer;margin-bottom:8px" onclick="selectCheckoutAddr(${i})">
+          <input type="radio" name="addr-radio" ${i===checkoutAddrIdx?'checked':''} style="margin-top:2px;accent-color:#8B0000;flex-shrink:0">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:700;color:#5C0000">${addr.label||'ที่อยู่ '+(i+1)}</div>
+            <div style="font-size:12px;color:#8B0000;margin-top:2px">${addr.address}</div>
+            ${addr.note?`<div style="font-size:11px;color:#8B0000;opacity:.7">${addr.note}</div>`:''}
+          </div>
+        </label>`).join('')}
+      <button style="background:none;border:1px dashed rgba(139,0,0,.3);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:12px;color:#8B0000;cursor:pointer;width:100%;margin-top:4px" onclick="openAddNewAddr();closeScreen('cart-screen')">+ เพิ่มที่อยู่ใหม่</button>
+      <div style="margin-top:12px">
+        <div style="font-size:12px;font-weight:700;color:#5C0000;margin-bottom:6px">ลิงก์ Google Maps สำหรับไรเดอร์</div>
+        <input type="text" id="checkout-mapslink"
+          value="${PROFILE.addresses[checkoutAddrIdx]?.mapsLink||''}"
+          placeholder="วางลิงก์ Maps (ถ้ามี)"
+          style="font-size:13px;padding:10px;width:100%;margin-bottom:0"
+          autocomplete="off">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">วิธีชำระเงิน</div>
+      <div class="pay-opts">
+        <div class="pay-opt${payMethod==='cod'?' active':''}" onclick="setPayMethod('cod')">
+          <div class="pay-icon">💵</div>
+          <div><div class="pay-name">เก็บเงินปลายทาง</div><div class="pay-desc">จ่ายสดให้ไรเดอร์</div></div>
+        </div>
+        <div class="pay-opt${payMethod==='transfer'?' active':''}" onclick="setPayMethod('transfer')">
+          <div class="pay-icon">📱</div>
+          <div><div class="pay-name">โอน / PromptPay</div><div class="pay-desc">ร้านจะส่ง QR ทาง LINE</div></div>
+        </div>
+      </div>
+    </div>
+
+    ${selectedPromo?`<div style="background:#ECFDF5;border:1px solid #10B981;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#065F46;font-weight:600">🎁 ใช้โปร: ${selectedPromo.name}</div>`:''}
+
+    <div class="card">
+      <div class="sum-row"><span>ยอดอาหาร</span><span>฿${t.sub}</span></div>
+      <div class="sum-row"><span>ค่าส่ง</span><span class="${t.promoDisc&&selectedPromo?.type==='FREE_DELIVERY'?'strike':''}">฿${t.fee}</span></div>
+      ${t.promoDisc?`<div class="sum-row disc"><span>ส่วนลดโปร</span><span>-฿${t.promoDisc}</span></div>`:''}
+      <div class="sum-row total"><span>ยอดรวม</span><span>฿${t.total}</span></div>
+    </div>
+
+    <div style="background:#FEF3C7;border-radius:12px;padding:12px;margin-bottom:12px;font-size:11px;color:#5C0000;line-height:1.7">
+      <b>📋 หมายเหตุ</b><br>
+      • ร้านจะยืนยันทาง LINE ภายใน 5-10 นาที<br>
+      • ยกเลิกได้ก่อนร้านเริ่มทำเท่านั้น
+    </div>
+
+    <div class="submit-bar">
+      <button class="btn-primary" id="submit-order-btn" onclick="submitOrder()">ยืนยันคำสั่งซื้อ ฿${t.total}</button>
+    </div>`;
+}
+
+function updQty(id,d) { const i=cart.find(c=>c.id===id); if(i){i.qty=Math.max(1,i.qty+d); renderCart(); updateCartBar();} }
+function removeItem(id) { cart=cart.filter(c=>c.id!==id); renderCart(); updateCartBar(); }
+function setPayMethod(m) { payMethod=m; renderCart(); }
+
+async function submitOrder() {
+  const name = document.getElementById('co-name').value.trim();
+  const phone = document.getElementById('co-phone').value.replace(/\D/g,'');
+  if (!name) return toast('ใส่ชื่อด้วยครับ','err');
+  if (phone.length!==10) return toast('เบอร์โทรต้อง 10 หลัก','err');
+
+  const a = PROFILE.addresses[checkoutAddrIdx];
+  const t = calcTotals();
+  if (!a) return toast('กรุณาเลือกที่อยู่','err');
+  const btn = document.getElementById('submit-order-btn');
+  btn.disabled=true; btn.textContent='กำลังส่ง...';
+
+  const payload = {
+    lineUid: USER?.lineUserId||'',
+    lineUserId: USER?.lineUserId||'-',
+    customerName: name, customerPhone: phone,
+    address: a?.address||'-', addressNote: a?.note||'',
+    mapsLink: (document.getElementById('checkout-mapslink')?.value||'').trim() || PROFILE.addresses[checkoutAddrIdx]?.mapsLink||'',
+    lat: '', lng: '',
+    items: cart.map(c=>({ id:c.menuId, name:c.name, qty:c.qty, unitPrice:c.unitPrice })),
+    itemsSummary: cart.map(c=>`${c.qty}× ${c.name}`).join(', '),
+    total: t.total,
+    payMethod: payMethod==='cod'?'เก็บปลายทาง':'โอน/PromptPay',
+    promoCode: selectedPromo?.id||'-',
+  };
+
+  try {
+    const resp = await fetch(API_URL + '/orders', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    const result = await resp.json();
+    if (!result.ok) throw new Error(result.error || 'server error');
+    document.getElementById('success-orderid').textContent = '#ORD' + Date.now().toString().slice(-8);
+    closeScreen('cart-screen');
+    document.getElementById('success-screen').classList.add('active');
+    cart=[]; selectedPromo=null; updateCartBar();
+  } catch(e) {
+    toast('เกิดข้อผิดพลาด ลองใหม่','err');
+    btn.disabled=false; btn.textContent='ยืนยันคำสั่งซื้อ ฿'+t.total;
+  }
+}
+
+function resetOrder() {
+  document.getElementById('success-screen').classList.remove('active');
+}
+
+// ════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════
+function haversine(lat1,lng1,lat2,lng2) {
+  const R=6371, dLat=(lat2-lat1)*Math.PI/180, dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function openLink(url) { if(url) window.open(url,'_blank'); }
+function openScreen(id) { document.getElementById(id).classList.add('active'); }
+function closeScreen(id) { document.getElementById(id).classList.remove('active'); }
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+let toastT;
+function toast(msg,type='') {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast show '+type;
+  clearTimeout(toastT); toastT=setTimeout(()=>el.className='toast '+type,2500);
+}
+
+init();
+
+function clearAndReload() {
+  if (confirm('ล้างข้อมูลทั้งหมดและเริ่มใหม่?')) {
+    localStorage.clear();
+    location.reload();
+  }
+}
+</script>
+</body>
+</html>

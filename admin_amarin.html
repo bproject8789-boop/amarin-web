@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Admin — อมรินทร์</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@700;900&family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai',sans-serif;background:#1a0505;min-height:100vh;color:#fff}
+header{background:linear-gradient(135deg,#8B0000,#5C0000);padding:16px 20px;border-bottom:1px solid rgba(255,215,0,.2)}
+.hdr-title{font-family:'Noto Serif Thai',serif;font-size:18px;font-weight:900;color:#FFD700}
+.hdr-sub{font-size:11px;color:#FFE4B5;opacity:.8;margin-top:2px}
+.tabs{display:flex;background:#0d0202;border-bottom:1px solid rgba(255,215,0,.1);overflow-x:auto}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;color:rgba(255,215,0,.5);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab.active{color:#FFD700;border-bottom-color:#FFD700}
+.panel{display:none;padding:16px;min-height:calc(100vh - 120px)}
+.panel.active{display:block}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,215,0,.1);border-radius:12px;padding:14px;margin-bottom:10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.stat{background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:12px}
+.stat-val{font-size:22px;font-weight:700;color:#FFD700}
+.stat-label{font-size:10px;color:rgba(255,215,0,.6);margin-top:2px}
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{background:rgba(139,0,0,.5);color:#FFD700;padding:8px;text-align:left;white-space:nowrap}
+.tbl td{padding:8px;border-bottom:1px solid rgba(255,255,255,.04);color:#FFE4B5;vertical-align:top}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700}
+.bw{background:#FEF3C7;color:#92400E}.bc{background:#DBEAFE;color:#1E40AF}.bk{background:#FEF3C7;color:#B45309}.bd{background:#FED7AA;color:#9A3412}.bs{background:#D1FAE5;color:#065F46}.bx{background:#FEE2E2;color:#991B1B}
+input,select,textarea{width:100%;padding:10px;border:1px solid rgba(255,215,0,.2);border-radius:8px;background:rgba(255,255,255,.05);color:#FFE4B5;font-family:inherit;font-size:12px;margin-bottom:8px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#FFD700}
+select option{background:#1a0505;color:#FFE4B5}
+label{font-size:11px;color:rgba(255,215,0,.7);display:block;margin-bottom:3px;font-weight:600}
+.btn{padding:10px 18px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.bg{background:#FFD700;color:#5C0000}.br{background:#8B0000;color:#FFD700}.bgy{background:rgba(255,255,255,.1);color:#FFE4B5}.bgn{background:#059669;color:white}
+.bsm{padding:5px 10px;font-size:11px}
+.brow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.mrow{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,215,0,.08);border-radius:10px;margin-bottom:8px}
+.mimg{width:48px;height:48px;border-radius:8px;background:rgba(255,215,0,.08);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden}
+.mname{font-weight:700;color:#FFE4B5;font-size:13px}
+.msub{font-size:10px;color:rgba(255,228,181,.6);margin-top:2px}
+.mprice{font-size:13px;font-weight:700;color:#FFD700;flex-shrink:0}
+.mst{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:700;flex-shrink:0}
+.open{background:#D1FAE5;color:#065F46}.closed{background:#FEE2E2;color:#991B1B}
+.prow{display:flex;align-items:flex-start;gap:10px;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,215,0,.08);border-radius:10px;margin-bottom:8px}
+.tw{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:12px}
+.tg{position:relative;width:40px;height:22px;flex-shrink:0}
+.tg input{opacity:0;width:0;height:0;position:absolute}
+.sl{position:absolute;inset:0;background:rgba(255,255,255,.2);border-radius:999px;transition:.3s}
+.sl:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:white;border-radius:50%;transition:.3s}
+.tg input:checked+.sl{background:#FFD700}
+.tg input:checked+.sl:before{transform:translateX(18px);background:#5C0000}
+.rfbtn{background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.2);color:#FFD700;padding:6px 14px;border-radius:8px;font-family:inherit;font-size:11px;cursor:pointer;float:right;margin-bottom:10px}
+.ox{overflow-x:auto}
+.upa{border:2px dashed rgba(255,215,0,.4);border-radius:10px;padding:16px;text-align:center;cursor:pointer;margin-bottom:8px}
+.uppr{width:80px;height:80px;border-radius:10px;background:rgba(255,215,0,.08);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden;border:1px dashed rgba(255,215,0,.2)}
+#modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:flex-end}
+#modal.show{display:flex}
+#modal-in{background:#1a0505;border:1px solid rgba(255,215,0,.2);border-radius:20px 20px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:20px}
+.te{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#FFD700;color:#5C0000;padding:10px 20px;border-radius:999px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-title">&#x1F969; Admin &mdash; อมรินทร์ โคตรเนื้อ โคตรกรอบ</div>
+  <div class="hdr-sub">หลังบ้านจัดการร้าน</div>
+</header>
+<div id="setup-banner" style="background:#92400E;color:#FEF3C7;padding:12px 16px;font-size:12px;line-height:1.6;display:none">
+  ⚠️ <b>ยังไม่ได้ตั้งค่า API URL</b> — แก้ตัวแปร <code style="background:rgba(0,0,0,.3);padding:1px 6px;border-radius:4px">API</code> ในไฟล์นี้ให้เป็น URL ของ server แล้วรีโหลด
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="showTab('orders',this)">&#x1F4CB; ออเดอร์</div>
+  <div class="tab" onclick="showTab('menu',this)">&#x1F37D;&#xFE0F; เมนู</div>
+  <div class="tab" onclick="showTab('promo',this)">&#x1F381; โปรโมชั่น</div>
+  <div class="tab" onclick="showTab('riders',this)">&#x1F6F5; ไรเดอร์</div>
+</div>
+<div class="panel active" id="panel-orders">
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="s-total">0</div><div class="stat-label">ออเดอร์วันนี้</div></div>
+    <div class="stat"><div class="stat-val" id="s-revenue">฿0</div><div class="stat-label">ยอดขาย</div></div>
+    <div class="stat"><div class="stat-val" id="s-pending">0</div><div class="stat-label">รอยืนยัน</div></div>
+    <div class="stat"><div class="stat-val" id="s-delivering">0</div><div class="stat-label">กำลังส่ง</div></div>
+  </div>
+  <button class="rfbtn" onclick="loadOrders()">&#x1F504; รีเฟรช</button>
+  <div class="ox" id="orders-table"><div style="text-align:center;padding:40px;color:rgba(255,215,0,.4)">กำลังโหลด...</div></div>
+</div>
+<div class="panel" id="panel-menu">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="color:#FFD700;font-weight:700">รายการเมนู</div>
+    <button class="btn bg bsm" onclick="openAddMenu()">+ เพิ่มเมนู</button>
+  </div>
+  <div id="menu-list"><div style="text-align:center;padding:40px;color:rgba(255,215,0,.4)">กำลังโหลด...</div></div>
+</div>
+<div class="panel" id="panel-promo">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="color:#FFD700;font-weight:700">โปรโมชั่น</div>
+    <button class="btn bg bsm" onclick="openAddPromo()">+ เพิ่มโปร</button>
+  </div>
+  <div id="promo-list"><div style="text-align:center;padding:40px;color:rgba(255,215,0,.4)">กำลังโหลด...</div></div>
+</div>
+<div class="panel" id="panel-riders">
+  <div style="color:#FFD700;font-weight:700;margin-bottom:12px">รอบส่งที่กำลังดำเนินการ</div>
+  <div id="rider-orders"><div style="text-align:center;padding:40px;color:rgba(255,215,0,.4)">กำลังโหลด...</div></div>
+</div>
+<div id="modal" onclick="bgClose(event)"><div id="modal-in"></div></div>
+<div class="te" id="te"></div>
+<script>
+var API='https://amarin-delivery.onrender.com'; // ⚠️ เปลี่ยนเป็น URL server จริงตอน deploy
+var SB={'รอยืนยัน':'bw','ยืนยันแล้ว':'bc','รอรอบ':'bc','กำลังทำ':'bk','กำลังส่ง':'bd','ส่งสำเร็จ':'bs','ยกเลิก':'bx'};
+var DM=[
+  {id:1,name:'เนื้อตุ๋นโคตรนุ่ม',cat:'เนื้อ',price:159,img:'&#x1F969;',stock:999,status:'เปิด',signature:true,sortOrder:1},
+  {id:2,name:'เนื้อทอดกระเทียมโคตรกรอบ',cat:'เนื้อ',price:139,img:'&#x1F356;',stock:999,status:'เปิด',signature:true,sortOrder:2},
+  {id:3,name:'สเต็กเนื้อโคตรกรอบ',cat:'เนื้อ',price:199,img:'&#x1F969;',stock:999,status:'เปิด',signature:true,sortOrder:3},
+  {id:4,name:'หมูทอดกระเทียม',cat:'หมู',price:89,img:'&#x1F416;',stock:999,status:'เปิด',signature:false,sortOrder:4},
+  {id:5,name:'หมูย่างซีอิ๊ว',cat:'หมู',price:99,img:'&#x1F416;',stock:999,status:'เปิด',signature:false,sortOrder:5}
+];
+var MD=[];var PD=[];var IB='';
+function showTab(id,el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  if(el)el.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+  if(id==='orders')loadOrders();
+  if(id==='menu')loadMenu();
+  if(id==='promo')loadPromo();
+  if(id==='riders')loadRiders();
+}
+async function loadOrders(){
+  var t=document.getElementById('orders-table');
+  if(!API||API==='YOUR_APPS_SCRIPT_URL_HERE'){
+    t.innerHTML='<div style="text-align:center;padding:40px;color:rgba(255,215,0,.4);line-height:1.8">ยังไม่ได้ตั้งค่า API<br><small style="opacity:.6">ใส่ URL Apps Script แล้วรีโหลด</small></div>';
+    return;
+  }
+  try{
+    var d=await(await fetch(API+'/orders/active')).json();
+    var os=d.orders||[];
+    var st=d.stats||{};
+    document.getElementById('s-total').textContent=st.todayCount||os.length;
+    document.getElementById('s-revenue').textContent='฿'+(st.todayRevenue||0).toLocaleString();
+    document.getElementById('s-pending').textContent=st.pending||0;
+    document.getElementById('s-delivering').textContent=st.delivering||0;
+    if(!os.length){t.innerHTML='<div style="text-align:center;padding:40px;color:rgba(255,215,0,.4)">ไม่มีออเดอร์</div>';return;}
+    var h='<table class="tbl"><thead><tr><th>Order ID</th><th>สถานะ</th><th>ลูกค้า</th><th>รายการ</th><th>ยอด</th><th>ชำระ</th></tr></thead><tbody>';
+    os.forEach(function(o){
+      h+='<tr><td style="white-space:nowrap">'+o.orderId+'</td>';
+      h+='<td><span class="badge '+(SB[o.status]||'')+'">'+o.status+'</span></td>';
+      h+='<td>'+o.name+'<br><span style="opacity:.6">'+o.phone+'</span></td>';
+      h+='<td style="max-width:140px">'+o.items+'</td>';
+      h+='<td style="color:#FFD700;white-space:nowrap">฿'+o.total+'</td>';
+      h+='<td style="white-space:nowrap">'+o.payMethod+'</td>';
+      h+='<td><select onchange="updateStatus(''+o.orderId+'',this.value)" style="font-size:10px;padding:3px;background:#1a0505;color:#FFE4B5;border:1px solid rgba(255,215,0,.3);border-radius:4px">';
+      ['รอยืนยัน','ยืนยันแล้ว','กำลังทำ','กำลังส่ง','ส่งสำเร็จ','ยกเลิก'].forEach(function(s){
+        h+='<option value="'+s+'"'+(s===o.status?' selected':'')+'>'+s+'</option>';
+      });
+      h+='</select></td></tr>';
+    });
+    t.innerHTML='<div class="ox">'+h+'</tbody></table></div>';
+  }catch(e){t.innerHTML='<div style="color:#FCA5A5;padding:20px">เชื่อมต่อ API ไม่ได้</div>';}
+}
+function svML(){
+  localStorage.setItem('admin_menu',JSON.stringify(MD));
+  // sync ขึ้น API ด้วย (background)
+  if(API&&API!=='YOUR_APPS_SCRIPT_URL_HERE'){
+    MD.forEach(function(m){
+      fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'update_menu',id:m.id,name:m.name,cat:m.cat,price:m.price,
+          img:m.img,desc:m.desc,stock:m.stock,status:m.status,signature:m.signature,sortOrder:m.sortOrder})
+      }).catch(function(){});
+    });
+  }
+}
+function ldML(){var s=localStorage.getItem('admin_menu');if(s){try{MD=JSON.parse(s);return true;}catch(e){}}return false;}
+async function loadMenu(){
+  if(!ldML())MD=DM.map(function(m){return Object.assign({},m);});
+  if(API&&API!=='YOUR_APPS_SCRIPT_URL_HERE'){
+    try{var d=await(await fetch(API+'/menu')).json();if(d.ok&&d.menu&&d.menu.length){MD=d.menu;svML();}}catch(e){}
+  }
+  renderML();
+}
+function gImg(img,id){
+  if(!img)return '&#x1F37D;&#xFE0F;';
+  if(img.startsWith('data:image'))return '<img src="'+img+'" style="width:48px;height:48px;object-fit:cover;border-radius:8px">';
+  if(img.startsWith('menu_img_')){var imgs=JSON.parse(localStorage.getItem('menu_images')||'{}');var k=img.replace('menu_img_','');if(imgs[k])return '<img src="'+imgs[k]+'" style="width:48px;height:48px;object-fit:cover;border-radius:8px">';}
+  return '<span style="font-size:28px">'+img+'</span>';
+}
+function renderML(){
+  var el=document.getElementById('menu-list');
+  if(!MD.length){el.innerHTML='<div style="text-align:center;padding:40px;color:rgba(255,215,0,.4)">ยังไม่มีเมนู กด "+ เพิ่มเมนู"</div>';return;}
+  var h='';
+  MD.forEach(function(m){
+    var op=m.status!=='ปิด';
+    h+='<div class="mrow">';
+    h+='<div class="mimg">'+gImg(m.img,m.id)+'</div>';
+    h+='<div style="flex:1;min-width:0"><div class="mname">'+m.name+'</div><div class="msub">'+m.cat+'</div></div>';
+    h+='<div class="mprice">฿'+m.price+'</div>';
+    h+='<span class="mst '+(op?'open':'closed')+'">'+(op?'เปิด':'ปิด')+'</span>';
+    h+='<button class="btn bgy bsm" onclick="editMenu('+m.id+')">แก้</button>';
+    h+='<button class="btn bsm" style="background:#DC2626;color:white;margin-left:4px" onclick="delMenu('+m.id+')">ลบ</button>';
+    h+='</div>';
+  });
+  el.innerHTML=h;
+}
+function delMenu(id){
+  if(!confirm('ลบเมนูนี้?'))return;
+  MD=MD.filter(function(m){return m.id!==id;});
+  svML();renderML();toast('ลบเมนูแล้ว');
+  if(API&&API!=='YOUR_APPS_SCRIPT_URL_HERE'){
+    fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'delete_menu',id:id})}).catch(function(){});
+  }
+}
+function togSt(id,st){
+  var m=MD.find(function(x){return x.id===id;});if(!m)return;
+  m.status=st;svML();
+  fetch(API+'/menu/'+id+'/status',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:st})}).catch(function(){});
+  closeModal();renderML();toast((st==='เปิด'?'✅ เปิด':'❌ ปิด')+': '+m.name);
+}
+function openAddMenu(){
+  IB='';
+  var h='<div style="color:#FFD700;font-family:\'Noto Serif Thai\',serif;font-size:16px;font-weight:700;margin-bottom:14px">+ เพิ่มเมนูใหม่</div>';
+  h+='<input type="hidden" id="m-id" value="">';
+  h+='<label>ชื่อเมนู *</label><input type="text" id="m-name" placeholder="ชื่อเมนู">';
+  h+='<label>หมวดหมู่ *</label>';
+  h+='<select id="m-cat"><option value="เนื้อ">🥩 เนื้อ</option><option value="หมู">🐷 หมู</option></select>';
+  h+='<label>ราคา (บาท) *</label><input type="number" id="m-price" placeholder="150">';
+  h+='<label>รูปเมนู * (บังคับอัปโหลด)</label>';
+  h+='<div class="upa" onclick="document.getElementById(\'m-img-file\').click()">';
+  h+='<div class="uppr" id="img-preview">📷</div>';
+  h+='<div style="font-size:11px;color:rgba(255,215,0,.6)">กดเพื่ออัปโหลดรูป JPG/PNG</div></div>';
+  h+='<input type="file" id="m-img-file" accept="image/*" style="display:none" onchange="hdlImg(this)">';
+  h+='<label>คำบรรยาย</label><textarea id="m-desc" placeholder="บรรยายสั้นๆ"></textarea>';
+  h+='<label>ลำดับการแสดง</label><input type="number" id="m-sort" placeholder="1,2,3...">';
+  h+='<div class="tw"><label class="tg"><input type="checkbox" id="m-sig"><span class="sl"></span></label><span style="font-size:12px;color:#FFE4B5">เมนูแนะนำ (ดาวทอง)</span></div>';
+  h+='<div class="brow"><button class="btn bg" onclick="saveMenu()">บันทึก</button><button class="btn bgy" onclick="closeModal()">ยกเลิก</button></div>';
+  showModal(h);
+}
+function editMenu(id){
+  var m=MD.find(function(x){return x.id===id;});if(!m)return;
+  IB='';
+  var h='<div style="color:#FFD700;font-family:\'Noto Serif Thai\',serif;font-size:16px;font-weight:700;margin-bottom:14px">✏️ แก้ไข: '+m.name+'</div>';
+  h+='<input type="hidden" id="m-id" value="'+m.id+'">';
+  h+='<label>ชื่อเมนู</label><input type="text" id="m-name" value="'+m.name+'">';
+  h+='<label>หมวดหมู่</label>';
+  h+='<select id="m-cat"><option value="เนื้อ"'+(m.cat==='เนื้อ'?' selected':'')+'>🥩 เนื้อ</option><option value="หมู"'+(m.cat==='หมู'?' selected':'')+'>🐷 หมู</option></select>';
+  h+='<label>ราคา (บาท)</label><input type="number" id="m-price" value="'+m.price+'">';
+  h+='<label>รูปเมนู (กดเพื่อเปลี่ยน)</label>';
+  h+='<div class="upa" onclick="document.getElementById(\'m-img-file\').click()">';
+  h+='<div class="uppr" id="img-preview">'+gImg(m.img,m.id)+'</div>';
+  h+='<div style="font-size:11px;color:rgba(255,215,0,.6)">กดเพื่อเปลี่ยนรูป</div></div>';
+  h+='<input type="file" id="m-img-file" accept="image/*" style="display:none" onchange="hdlImg(this)">';
+  h+='<label>คำบรรยาย</label><textarea id="m-desc">'+(m.desc||'')+'</textarea>';
+  h+='<label>ลำดับการแสดง</label><input type="number" id="m-sort" value="'+(m.sortOrder||99)+'">';
+  h+='<div style="display:flex;gap:8px;margin:10px 0">';
+  h+='<button class="btn bgn" style="flex:1" onclick="togSt('+id+',\'เปิด\')">✅ เปิดเมนู</button>';
+  h+='<button class="btn br" style="flex:1" onclick="togSt('+id+',\'ปิด\')">❌ ปิดเมนู</button></div>';
+  h+='<div class="tw"><label class="tg"><input type="checkbox" id="m-sig"'+(m.signature?' checked':'')+'>  <span class="sl"></span></label><span style="font-size:12px;color:#FFE4B5">เมนูแนะนำ (ดาวทอง)</span></div>';
+  h+='<div class="brow"><button class="btn bg" onclick="saveMenu()">บันทึก</button><button class="btn bgy" onclick="closeModal()">ยกเลิก</button></div>';
+  showModal(h);
+}
+function saveMenu(){
+  var name=(document.getElementById('m-name').value||'').trim();
+  var price=document.getElementById('m-price').value;
+  if(!name)return toast('กรุณาใส่ชื่อเมนู');
+  if(!price)return toast('กรุณาใส่ราคา');
+  var eid=parseInt(document.getElementById('m-id').value||'0');
+  var isEdit=MD.some(function(m){return m.id===eid;});
+  var isB64=IB.startsWith('data:image');
+  if(!isB64&&!isEdit)return toast('กรุณาอัปโหลดรูปเมนูก่อน');
+  var nid=eid||(Date.now()%100000);
+  if(isB64){var imgs=JSON.parse(localStorage.getItem('menu_images')||'{}');imgs[String(nid)]=IB;localStorage.setItem('menu_images',JSON.stringify(imgs));}
+  var ex=MD.find(function(m){return m.id===nid;});
+  var imgK=isB64?('menu_img_'+nid):(ex?ex.img:'&#x1F37D;&#xFE0F;');
+  var ni={id:nid,name:name,cat:document.getElementById('m-cat').value||'เนื้อ',price:parseInt(price),img:imgK,desc:(document.getElementById('m-desc').value||'').trim(),stock:999,status:ex?ex.status:'เปิด',signature:document.getElementById('m-sig').checked,sortOrder:parseInt(document.getElementById('m-sort').value||'99')};
+  var idx=MD.findIndex(function(m){return m.id===nid;});
+  if(idx>=0){MD[idx]=ni;toast('แก้ไขเมนูแล้ว ✅');}else{MD.push(ni);toast('เพิ่มเมนูแล้ว ✅');}
+  svML();
+  // sync ขึ้น API
+  fetch(API+'/menu',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ni)})
+    .then(function(r){return r.json();})
+    .then(function(d){if(d.ok&&isB64){return fetch(API+'/menu/upload-image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:nid,imageBase64:IB})});}})
+    .catch(function(){});
+  closeModal();renderML();
+}
+async function hdlImg(input){
+  var file=input.files[0];if(!file)return;
+  var b64=await cmpImg(file,400,400,0.75);IB=b64;
+  var pr=document.getElementById('img-preview');
+  if(pr)pr.innerHTML='<img src="'+b64+'" style="width:80px;height:80px;object-fit:cover;border-radius:10px">';
+  toast('บีบรูปสำเร็จ ~'+Math.round(b64.length*0.75/1024)+' KB ✅');
+}
+function cmpImg(file,mw,mh,q){
+  return new Promise(function(res){
+    var rd=new FileReader();
+    rd.onload=function(e){
+      var im=new Image();
+      im.onload=function(){
+        var w=im.width,h=im.height;
+        if(w>mw||h>mh){var r=Math.min(mw/w,mh/h);w=Math.round(w*r);h=Math.round(h*r);}
+        var cv=document.createElement('canvas');cv.width=w;cv.height=h;
+        cv.getContext('2d').drawImage(im,0,0,w,h);res(cv.toDataURL('image/jpeg',q));
+      };im.src=e.target.result;
+    };rd.readAsDataURL(file);
+  });
+}
+async function loadPromo(){
+  var el=document.getElementById('promo-list');
+  PD=JSON.parse(localStorage.getItem('admin_promos')||'[]');
+  if(API&&API!=='YOUR_APPS_SCRIPT_URL_HERE'){
+    try{var d=await(await fetch(API+'/promos')).json();if(d.ok&&d.promos)PD=d.promos;}catch(e){}
+  }
+  renderPL();
+}
+function renderPL(){
+  var el=document.getElementById('promo-list');
+  if(!PD.length){el.innerHTML='<div style="text-align:center;padding:40px;color:rgba(255,215,0,.4)">ยังไม่มีโปรโมชั่น</div>';return;}
+  var h='';
+  PD.forEach(function(p){
+    var bg=p.type==='FREE_DELIVERY'?'🚚 ส่งฟรี':(p.type==='DISCOUNT_PERCENT'?p.value+'%':'฿'+p.value);
+    h+='<div class="prow"><div style="background:linear-gradient(135deg,#FFD700,#FFA500);color:#5C0000;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;flex-shrink:0">'+bg+'</div>';
+    h+='<div style="flex:1"><div style="font-weight:700;color:#FFE4B5;font-size:13px">'+p.name+'</div><div style="font-size:11px;color:rgba(255,228,181,.6);">'+(p.desc||'')+'</div></div>';
+    h+='<button class="btn br bsm" onclick="delPromo(\''+p.id+'\')">ลบ</button></div>';
+  });
+  el.innerHTML=h;
+}
+function delPromo(id){
+  if(!confirm('ลบโปรนี้?'))return;
+  PD=PD.filter(function(p){return p.id!==id;});
+  localStorage.setItem('admin_promos',JSON.stringify(PD));
+  if(API&&API!=='YOUR_APPS_SCRIPT_URL_HERE'){
+    fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'delete_promo',id:id})}).catch(function(){});
+  }
+  renderPL();toast('ลบโปรแล้ว');
+}
+function openAddPromo(){
+  var h='<div style="color:#FFD700;font-family:\'Noto Serif Thai\',serif;font-size:16px;font-weight:700;margin-bottom:14px">+ เพิ่มโปรโมชั่น</div>';
+  h+='<label>ชื่อโปร *</label><input type="text" id="p-name" placeholder="เช่น ลด 10%">';
+  h+='<label>คำบรรยาย</label><input type="text" id="p-desc" placeholder="รายละเอียด">';
+  h+='<label>ประเภท</label><select id="p-type"><option value="DISCOUNT_PERCENT">ลด % ของยอดอาหาร</option><option value="DISCOUNT_FIXED">ลดราคาคงที่ (บาท)</option><option value="FREE_DELIVERY">ส่งฟรี</option></select>';
+  h+='<label>มูลค่า</label><input type="number" id="p-val" placeholder="10">';
+  h+='<div class="brow"><button class="btn bg" onclick="savePromo()">บันทึก</button><button class="btn bgy" onclick="closeModal()">ยกเลิก</button></div>';
+  showModal(h);
+}
+function savePromo(){
+  var name=(document.getElementById('p-name').value||'').trim();
+  if(!name)return toast('ใส่ชื่อโปรด้วย');
+  PD.push({id:'P'+Date.now().toString().slice(-4),name:name,desc:(document.getElementById('p-desc').value||'').trim(),type:document.getElementById('p-type').value,value:parseInt(document.getElementById('p-val').value||'0')});
+  localStorage.setItem('admin_promos',JSON.stringify(PD));
+  if(API&&API!=='YOUR_APPS_SCRIPT_URL_HERE'){
+    fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(Object.assign({action:'add_promo'},PD[PD.length-1]))}).catch(function(){});
+  }
+  closeModal();renderPL();toast('เพิ่มโปรแล้ว ✅');
+}
+async function loadRiders(){
+  var el=document.getElementById('rider-orders');
+  if(!API||API==='YOUR_APPS_SCRIPT_URL_HERE'){el.innerHTML='<div style="text-align:center;padding:40px;color:rgba(255,215,0,.4)">ยังไม่ได้ตั้งค่า API</div>';return;}
+  try{
+    var d=await(await fetch(API+'/orders/active')).json();
+    var os=(d.orders||[]).filter(function(o){return ['รอรอบ','กำลังทำ','กำลังส่ง'].includes(o.status);});
+    if(!os.length){el.innerHTML='<div style="text-align:center;padding:40px;color:rgba(255,215,0,.4)">ไม่มีออเดอร์กำลังส่ง</div>';return;}
+    var h='';
+    os.forEach(function(o,i){
+      var mb=o.mapsLink?'<a href="'+o.mapsLink+'" target="_blank" style="background:#8B0000;color:#FFD700;padding:4px 10px;border-radius:6px;font-size:11px;text-decoration:none">&#x1F5FA;&#xFE0F; Maps</a>':'';
+      h+='<div class="card" style="border-left:3px solid #FFD700">';
+      h+='<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#FFD700;font-weight:700">#'+(i+1)+' '+o.orderId+'</span><span class="badge '+(SB[o.status]||'')+'">'+o.status+'</span></div>';
+      h+='<div style="font-size:12px;color:#FFE4B5"><b>'+o.name+'</b> &bull; '+o.phone+'</div>';
+      h+='<div style="font-size:11px;color:rgba(255,228,181,.7);margin-top:4px">&#x1F4CD; '+o.address+'</div>';
+      h+='<div style="font-size:11px;color:rgba(255,228,181,.7);margin-top:2px">'+o.items+'</div>';
+      h+='<div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center"><span style="color:#FFD700;font-weight:700">฿'+o.total+' ('+o.payMethod+')</span>'+mb+'</div></div>';
+    });
+    el.innerHTML=h;
+  }catch(e){el.innerHTML='<div style="color:#FCA5A5;padding:20px">เชื่อมต่อ API ไม่ได้</div>';}
+}
+function showModal(h){document.getElementById('modal-in').innerHTML=h;document.getElementById('modal').classList.add('show');}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+function bgClose(e){if(e.target===document.getElementById('modal'))closeModal();}
+var tt;
+function toast(msg){var el=document.getElementById('te');el.textContent=msg;el.style.opacity='1';clearTimeout(tt);tt=setTimeout(function(){el.style.opacity='0';},2500);}
+// ตรวจ API URL
+if (!API || API === 'YOUR_APPS_SCRIPT_URL_HERE' || API === 'http://localhost:3000') {
+  document.getElementById('setup-banner').style.display = 'block';
+}
+loadMenu();
+loadOrders();
+setInterval(loadOrders, 60000);
+
+function updateStatus(orderId,status){
+  if(!API||API==='YOUR_APPS_SCRIPT_URL_HERE'){toast('ยังไม่ได้ตั้งค่า API');return;}
+  fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'update_status',orderId:orderId,status:status})
+  }).then(function(){toast('อัปเดตสถานะแล้ว ✅');loadOrders();}).catch(function(){toast('Error');});
+}
+</script>
+</body>
+</html>

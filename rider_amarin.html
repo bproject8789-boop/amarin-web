@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>ไรเดอร์ — อมรินทร์</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@700;900&family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans Thai',sans-serif;background:#FFF5F0;min-height:100vh;padding-bottom:20px}
+
+header{background:linear-gradient(135deg,#8B0000,#5C0000);color:#FFD700;padding:16px 20px;position:sticky;top:0;z-index:50;box-shadow:0 4px 12px rgba(139,0,0,.3)}
+.hdr-title{font-family:'Noto Serif Thai',serif;font-size:17px;font-weight:900;color:#FFD700}
+.hdr-sub{font-size:11px;color:#FFE4B5;opacity:.8;margin-top:2px}
+
+.top-bar{display:flex;gap:8px;padding:12px 16px;background:white;border-bottom:1px solid rgba(139,0,0,.08)}
+.top-bar button{padding:8px 16px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.btn-start{background:#8B0000;color:#FFD700;flex:1}
+.btn-refresh{background:#FEF3C7;color:#5C0000}
+
+.summary-bar{background:#5C0000;color:#FFD700;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.summary-bar span{font-weight:700}
+
+.content{padding:12px 16px}
+
+/* ORDER CARD */
+.order-card{background:white;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:0 2px 8px rgba(139,0,0,.08);border:2px solid transparent;transition:border-color .2s}
+.order-card.done{border-color:#10B981;opacity:.7}
+.order-card.active-card{border-color:#8B0000}
+.oc-head{background:linear-gradient(135deg,#8B0000,#5C0000);padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+.oc-order-id{color:#FFD700;font-weight:700;font-size:13px}
+.oc-badge{background:rgba(255,215,0,.2);color:#FFD700;padding:3px 10px;border-radius:999px;font-size:11px}
+.oc-body{padding:12px 14px}
+.oc-name{font-family:'Noto Serif Thai',serif;font-weight:700;font-size:14px;color:#5C0000;margin-bottom:4px}
+.oc-phone{font-size:12px;color:#8B0000}
+.oc-addr{font-size:12px;color:#5C0000;margin-top:6px;line-height:1.5;background:#FEF3C7;border-radius:8px;padding:8px 10px}
+.oc-items{font-size:11px;color:#8B0000;margin-top:6px;line-height:1.5}
+.oc-total{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(139,0,0,.1)}
+.oc-total-num{font-weight:700;color:#5C0000;font-size:16px}
+.oc-pay-type{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:700}
+.pay-cod{background:#FEE2E2;color:#991B1B}
+.pay-transfer{background:#ECFDF5;color:#065F46}
+
+/* ACTION AREA */
+.oc-actions{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px}
+.btn-nav{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:#5C0000;color:#FFD700;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;width:100%}
+.btn-confirm{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:#059669;color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;width:100%}
+.btn-photo{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:#FFD700;color:#5C0000;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;width:100%}
+.btn-done{background:#D1FAE5;color:#065F46;border:2px solid #10B981;padding:10px;border-radius:10px;text-align:center;font-weight:700;font-size:13px}
+
+/* PHOTO PREVIEW */
+.photo-preview{margin-top:8px;border-radius:10px;overflow:hidden;position:relative}
+.photo-preview img{width:100%;max-height:200px;object-fit:cover}
+.photo-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:white;padding:6px;font-size:11px;text-align:center}
+
+/* CAMERA INPUT (hidden) */
+.cam-input{display:none}
+
+/* NOTE AREA */
+.note-area{margin-top:6px}
+.note-area textarea{width:100%;padding:8px;border:1px solid rgba(139,0,0,.2);border-radius:8px;font-family:inherit;font-size:12px;color:#5C0000;resize:none;height:56px}
+
+/* END SHIFT */
+.shift-summary{background:white;border-radius:14px;padding:16px;margin-top:12px;box-shadow:0 2px 8px rgba(139,0,0,.08)}
+.shift-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(139,0,0,.06);font-size:13px;color:#5C0000}
+.shift-row:last-child{border:none;font-weight:700;font-size:16px}
+.shift-cod{color:#DC2626;font-size:22px;font-weight:700;text-align:center;padding:12px;background:#FEE2E2;border-radius:10px;margin-top:8px}
+
+.loader{width:30px;height:30px;border:3px solid rgba(139,0,0,.2);border-top-color:#8B0000;border-radius:50%;animation:spin .8s linear infinite;margin:30px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:48px 20px;color:#8B0000;font-size:13px}
+
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#5C0000;color:#FFD700;padding:10px 20px;border-radius:999px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.toast.ok{background:#059669;color:white}
+.toast.err{background:#DC2626;color:white}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-title">🛵 ไรเดอร์ — อมรินทร์</div>
+  <div class="hdr-sub" id="rider-name">ยังไม่ได้ระบุชื่อ</div>
+</header>
+
+<div class="top-bar">
+  <button class="btn-start" onclick="startShift()">▶ เริ่มรับงานรอบใหม่</button>
+  <button class="btn-refresh" onclick="loadOrders()">🔄</button>
+</div>
+
+<div class="summary-bar" id="summary-bar">
+  <div>รอบนี้: <span id="sum-batch">-</span></div>
+  <div>ส่งแล้ว <span id="sum-done">0</span>/<span id="sum-total">0</span></div>
+  <div>COD: <span id="sum-cod">฿0</span></div>
+</div>
+
+<div class="content">
+  <div id="orders-list">
+    <div class="loader"></div>
+  </div>
+
+  <!-- ปิดกะ -->
+  <div id="end-shift-section" style="display:none">
+    <div class="shift-summary">
+      <div style="font-family:'Noto Serif Thai',serif;font-size:15px;font-weight:700;color:#5C0000;margin-bottom:10px">สรุปการส่งวันนี้</div>
+      <div class="shift-row"><span>จำนวนบิล</span><span id="es-count">0</span></div>
+      <div class="shift-row"><span>ยอดโอนทั้งหมด</span><span id="es-transfer">฿0</span></div>
+      <div class="shift-row"><span>ยอดรวม COD ที่ต้องคืน</span><span></span></div>
+      <div class="shift-cod" id="es-cod">฿0</div>
+      <div style="font-size:11px;color:#DC2626;text-align:center;margin-top:6px">⚠️ ยอดนี้ต้องนำเงินสดมาคืนร้านทันที</div>
+    </div>
+    <button style="width:100%;margin-top:12px;padding:14px;background:#8B0000;color:#FFD700;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer" onclick="confirmEndShift()">ยืนยันปิดกะ</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Hidden camera input -->
+<input type="file" accept="image/*" capture="environment" class="cam-input" id="cam-input">
+
+<script>
+const API = 'https://amarin-delivery.onrender.com'; // ⚠️ เปลี่ยนเป็น URL server จริงตอน deploy
+
+// ════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════
+let ORDERS = [];
+let RIDER_NAME = localStorage.getItem('rider_name') || '';
+let currentBatch = localStorage.getItem('current_batch') || '';
+let photoTarget = null;  // orderId ที่กำลังถ่ายรูป
+let confirmCache = {};   // orderId → {photo, note, confirmed}
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+function init() {
+  if (!RIDER_NAME) {
+    RIDER_NAME = prompt('ใส่ชื่อไรเดอร์:') || 'ไรเดอร์';
+    localStorage.setItem('rider_name', RIDER_NAME);
+  }
+  document.getElementById('rider-name').textContent = RIDER_NAME;
+  loadOrders();
+
+  document.getElementById('cam-input').addEventListener('change', handlePhoto);
+}
+
+async function loadOrders() {
+  try {
+    const r = await fetch(API + '/orders/active' + (currentBatch ? '&batch='+currentBatch : ''));
+    const d = await r.json();
+    ORDERS = (d.orders || []).filter(o => !['ส่งสำเร็จ','ยกเลิก'].includes(o.status) || confirmCache[o.orderId]?.confirmed);
+    renderOrders();
+    updateSummary();
+  } catch(e) { toast('โหลดไม่ได้: '+e.message,'err'); }
+}
+
+// ════════════════════════════════════════════════════════
+// SHIFT
+// ════════════════════════════════════════════════════════
+function startShift() {
+  const batch = prompt('ใส่หมายเลขรอบ (เช่น 1, 2, 3):');
+  if (!batch) return;
+  currentBatch = batch;
+  localStorage.setItem('current_batch', batch);
+  confirmCache = {};
+  document.getElementById('end-shift-section').style.display = 'none';
+  document.getElementById('sum-batch').textContent = 'รอบที่ ' + batch;
+  loadOrders();
+  toast('เริ่มรอบที่ ' + batch, 'ok');
+}
+
+// ════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════
+function renderOrders() {
+  if (!ORDERS.length) {
+    document.getElementById('orders-list').innerHTML = '<div class="empty">📦 ไม่มีออเดอร์ในรอบนี้<br><br>กด "เริ่มรับงานรอบใหม่" เพื่อดูรายการ</div>';
+    return;
+  }
+
+  const html = ORDERS.map((o, i) => {
+    const confirmed = confirmCache[o.orderId]?.confirmed;
+    const isCOD = o.payMethod?.includes('ปลายทาง');
+    const photoUrl = confirmCache[o.orderId]?.photo;
+
+    return `
+      <div class="order-card ${confirmed?'done':''}" id="card-${o.orderId}">
+        <div class="oc-head">
+          <div class="oc-order-id">📦 #${i+1} — ${o.orderId}</div>
+          <div class="oc-badge">${confirmed?'✅ ส่งแล้ว':'⏳ รอส่ง'}</div>
+        </div>
+        <div class="oc-body">
+          <div class="oc-name">${o.name}</div>
+          <div class="oc-phone">📞 <a href="tel:${o.phone}" style="color:#8B0000">${o.phone}</a></div>
+          <div class="oc-addr">📍 ${o.address}${o.note&&o.note!=='-'?' • '+o.note:''}</div>
+          <div class="oc-items">🍽️ ${o.items}</div>
+          <div class="oc-total">
+            <div class="oc-total-num">฿${o.total}</div>
+            <span class="oc-pay-type ${isCOD?'pay-cod':'pay-transfer'}">${o.payMethod}</span>
+          </div>
+        </div>
+        ${!confirmed ? `
+          <div class="oc-actions">
+            ${o.lat&&o.lng ? `<a class="btn-nav" href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank">🗺️ นำทางไปส่ง</a>` : ''}
+            ${photoUrl ? `
+              <div class="photo-preview">
+                <img src="${photoUrl}" onerror="this.parentElement.innerHTML='<div style=padding:10px;color:#8B0000;font-size:11px>📷 บันทึกรูปแล้ว</div>'">
+                <div class="photo-label">📷 ถ่ายรูปแล้ว (กดอีกครั้งเพื่อถ่ายใหม่)</div>
+              </div>` : ''}
+            <button class="btn-photo" onclick="takePhoto('${o.orderId}')">📷 ถ่ายรูปหลักฐาน${photoUrl?' (ถ่ายใหม่)':''}</button>
+            <div class="note-area">
+              <textarea placeholder="หมายเหตุ เช่น แขวนไว้หน้าบ้าน, วางที่รั้ว..." id="note-${o.orderId}">${confirmCache[o.orderId]?.note||''}</textarea>
+            </div>
+            ${isCOD ? `
+              <div style="background:#FEE2E2;border-radius:8px;padding:10px;font-size:12px;color:#991B1B;font-weight:700;text-align:center">
+                💵 เก็บเงิน ฿${o.total} จากลูกค้า
+              </div>` : ''}
+            <button class="btn-confirm" onclick="confirmDelivery('${o.orderId}', ${isCOD})">
+              ✅ ยืนยันส่งเรียบร้อย${isCOD?' (เก็บเงินแล้ว)':''}
+            </button>
+          </div>` : `
+          <div class="oc-actions">
+            <div class="btn-done">✅ ส่งเรียบร้อยแล้ว ${isCOD?'• เก็บเงิน ฿'+o.total:'• ชำระโอนแล้ว'}</div>
+            ${photoUrl?`<div style="font-size:11px;color:#059669;text-align:center">📷 มีรูปหลักฐาน</div>`:''}
+          </div>`}
+      </div>`;
+  }).join('');
+
+  document.getElementById('orders-list').innerHTML = html;
+
+  // แสดงปุ่มปิดกะถ้าส่งครบ
+  const allDone = ORDERS.length > 0 && ORDERS.every(o => confirmCache[o.orderId]?.confirmed);
+  document.getElementById('end-shift-section').style.display = allDone ? 'block' : 'none';
+  if (allDone) updateEndShift();
+}
+
+function updateSummary() {
+  const done = Object.values(confirmCache).filter(c=>c.confirmed).length;
+  const cod = ORDERS.filter(o => {
+    const isCOD = o.payMethod?.includes('ปลายทาง');
+    const conf = confirmCache[o.orderId]?.confirmed;
+    return isCOD && conf;
+  }).reduce((s,o)=>s+Number(o.total),0);
+
+  document.getElementById('sum-done').textContent = done;
+  document.getElementById('sum-total').textContent = ORDERS.length;
+  document.getElementById('sum-cod').textContent = '฿' + cod;
+}
+
+// ════════════════════════════════════════════════════════
+// PHOTO
+// ════════════════════════════════════════════════════════
+function takePhoto(orderId) {
+  photoTarget = orderId;
+  document.getElementById('cam-input').value = '';
+  document.getElementById('cam-input').click();
+}
+
+async function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file || !photoTarget) return;
+
+  toast('กำลังอัปโหลดรูป...');
+  try {
+    const base64 = await fileToBase64(file);
+    const payload = { orderId: photoTarget, photoBase64: base64 };
+    const r = await fetch(API + '/rider/confirm', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    // no-cors = ไม่รู้ response แต่ upload สำเร็จ
+    if (!confirmCache[photoTarget]) confirmCache[photoTarget] = {};
+    // เก็บ base64 preview ชั่วคราว (URL จริงอยู่ใน Drive)
+    confirmCache[photoTarget].photo = base64;
+    toast('อัปโหลดรูปสำเร็จ 📷','ok');
+    renderOrders();
+  } catch(err) {
+    toast('อัปโหลดไม่ได้: '+err.message,'err');
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((res,rej) => {
+    const reader = new FileReader();
+    reader.onload = () => res(reader.result);
+    reader.onerror = rej;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// CONFIRM DELIVERY
+// ════════════════════════════════════════════════════════
+async function confirmDelivery(orderId, isCOD) {
+  const note = document.getElementById('note-'+orderId)?.value || '';
+
+  // ถ้าเป็นโอน ต้องถ่ายรูปก่อน
+  if (!isCOD && !confirmCache[orderId]?.photo) {
+    const ok = confirm('ถ้าลูกค้าโอนมาก่อน ควรถ่ายรูปหลักฐานการส่งก่อนนะครับ\n\nยืนยันโดยไม่มีรูปหรือไม่?');
+    if (!ok) return;
+  }
+
+  const photoUrl = confirmCache[orderId]?.photo || '';
+
+  try {
+    await fetch(API, {
+      method: 'POST', mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ orderId, note, photoBase64: photoUrl || '' }),
+    });
+    if (!confirmCache[orderId]) confirmCache[orderId] = {};
+    confirmCache[orderId].confirmed = true;
+    confirmCache[orderId].note = note;
+    toast('ยืนยันส่งสำเร็จ! ✅','ok');
+    renderOrders();
+    updateSummary();
+  } catch(err) {
+    toast('เกิดข้อผิดพลาด ลองใหม่','err');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// END SHIFT
+// ════════════════════════════════════════════════════════
+function updateEndShift() {
+  const done = ORDERS.filter(o=>confirmCache[o.orderId]?.confirmed);
+  const cod = done.filter(o=>o.payMethod?.includes('ปลายทาง')).reduce((s,o)=>s+Number(o.total),0);
+  const transfer = done.filter(o=>!o.payMethod?.includes('ปลายทาง')).reduce((s,o)=>s+Number(o.total),0);
+  document.getElementById('es-count').textContent = done.length + ' บิล';
+  document.getElementById('es-transfer').textContent = '฿' + transfer.toLocaleString();
+  document.getElementById('es-cod').textContent = '฿' + cod.toLocaleString();
+}
+
+function confirmEndShift() {
+  const cod = ORDERS.filter(o=>confirmCache[o.orderId]?.confirmed && o.payMethod?.includes('ปลายทาง')).reduce((s,o)=>s+Number(o.total),0);
+  if (confirm(`ยืนยันปิดกะ?\n\nต้องนำเงินสด ฿${cod} คืนร้านด้วยนะครับ`)) {
+    currentBatch = '';
+    localStorage.removeItem('current_batch');
+    confirmCache = {};
+    toast('ปิดกะเรียบร้อย เก็บเงินไปคืนร้านด้วยครับ!','ok');
+    setTimeout(() => { document.getElementById('orders-list').innerHTML = '<div class="empty">✅ ปิดกะเรียบร้อยแล้ว<br><br>กด "เริ่มรับงานรอบใหม่" เพื่อรับงานต่อ</div>'; document.getElementById('end-shift-section').style.display='none'; }, 1000);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════
+let toastT;
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast show '+type;
+  clearTimeout(toastT); toastT = setTimeout(()=>el.className='toast '+type, 2500);
+}
+
+init();
+</script>
+</body>
+</html>
