@@ -571,6 +571,7 @@ function saveNewAddr() {
 // MENU
 // ════════════════════════════════════════════════════════
 async function loadMenu() {
+  localStorage.removeItem('admin_menu');
   if (API_URL && API_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
     try {
       const r = await fetch(API_URL + '?action=menu');
